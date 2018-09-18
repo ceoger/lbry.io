@@ -26,10 +26,10 @@ We will continue to make this process easier for users in the future through the
 The easiest way to find the location of your LBRY android wallet is via the [Android App](https://play.google.com/store/apps/details?id=io.lbry.browser). To find your wallet in the LBRY Android App, click on the 3 horizontal bars at the upper left side of the App next to `Discovery`. Clicking on it will open a side bar and then click on wallet.This will open the wallet page. 
 ![Find wallet](https://spee.ch/b3535b68750ad69c48566cb028c67d323d1fdeb9/walli.jpg)
 
-## How do I backup my LBRY Desktop App wallet?
-*Please note that this may vary with each Android device*
-1. Open your favorite file manager, navigate to `Internal storage/android/data/io.lbry.browser/files/lbryum/wallets` 
-2. Copy the default_wallet to any other location on your phone, i.e. your sd card or another directory on Internal Storage
+## How do I backup my LBRY Android App wallet?
+*please note that this may be different depending on the device you use*
+1. Use your favorite file manager and navigate to Internal storage/android/data/io.lbry.browser/files/lbryum/>wallets
+copy the default_wallet to any other location on your phone, example sd card
 
 ## How do I find my wallet if I don't have LBRY open? 
 
