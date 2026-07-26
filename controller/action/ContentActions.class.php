@@ -40,7 +40,7 @@ class ContentActions extends Actions
     }
     //
 
-    public static function executeNews(string $slug = null): array
+    public static function executeNews(?string $slug = null): array
     {
         Response::enablePublicImmutableCache();
 
@@ -82,7 +82,7 @@ class ContentActions extends Actions
     ]];
     }
 
-    public static function executeFaq(string $slug = null): array
+    public static function executeFaq(?string $slug = null): array
     {
         Response::enablePublicImmutableCache();
 
@@ -132,7 +132,7 @@ class ContentActions extends Actions
     }
 
 
-    public static function executeCreditReports(string $year = null, string $month = null): array
+    public static function executeCreditReports(?string $year = null, ?string $month = null): array
     {
         Response::enablePublicImmutableCache();
 
@@ -143,7 +143,7 @@ class ContentActions extends Actions
     ]];
     }
 
-    public static function executeCreditReport(string $year = null, string $quarter = null): array
+    public static function executeCreditReport(?string $year = null, ?string $quarter = null): array
     {
         Response::enablePublicImmutableCache();
 
@@ -160,7 +160,7 @@ class ContentActions extends Actions
     }
 
 
-    public static function executeBountyRedirect(string $slug = null): array
+    public static function executeBountyRedirect(?string $slug = null): array
     {
         return Controller::redirect('https://lbry.tech/contribute');
     }

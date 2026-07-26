@@ -61,7 +61,7 @@ class View
     {
         extract($___vars);
         ob_start();
-        ob_implicit_flush(0);
+        ob_implicit_flush(false);
 
         try {
             require(static::getFullPath($___template));
@@ -117,19 +117,18 @@ class View
 
     public static function compileCss()
     {
-        $scssCompiler = new \scssphp\ScssPhp\Compiler();
+        $scssCompiler = new \ScssPhp\ScssPhp\Compiler();
 
         $scssCompiler->setImportPaths([self::COMPONENTS_DIR, self::COLORS_DIR, self::SCSS_DIR]);
 
         $compress = true;
         if ($compress) {
-            $scssCompiler->setFormatter('scssphp\ScssPhp\Formatter\Crunched');
+            $scssCompiler->setOutputStyle(\ScssPhp\ScssPhp\OutputStyle::COMPRESSED);
         } else {
-            $scssCompiler->setFormatter('scssphp\ScssPhp\Formatter\Expanded');
-            $scssCompiler->setLineNumberStyle(scssphp\ScssPhp\Compiler::LINE_COMMENTS);
+            $scssCompiler->setOutputStyle(\ScssPhp\ScssPhp\OutputStyle::EXPANDED);
         }
 
-        $all_css = $scssCompiler->compile(file_get_contents(self::SCSS_DIR . '/all.scss'));
+        $all_css = $scssCompiler->compileString(file_get_contents(self::SCSS_DIR . '/all.scss'))->getCss();
         file_put_contents(self::CSS_DIR . '/all.css', $all_css);
     }
 

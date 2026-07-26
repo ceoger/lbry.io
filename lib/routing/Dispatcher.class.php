@@ -16,7 +16,7 @@ class Dispatcher
      * @param RouteDataInterface       $data
      * @param HandlerResolverInterface $resolver
      */
-    public function __construct(RouteData $data, HandlerResolverInterface $resolver = null)
+    public function __construct(RouteData $data, ?HandlerResolverInterface $resolver = null)
     {
         $this->staticRouteMap = $data->getStaticRoutes();
 

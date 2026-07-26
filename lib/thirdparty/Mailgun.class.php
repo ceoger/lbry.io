@@ -45,7 +45,6 @@ class Mailgun
 
     protected static function inlineCss($html, $css = '')
     {
-        $e = new \Pelago\Emogrifier($html, $css);
-        return trim($e->emogrify());
+        return trim(\Pelago\Emogrifier\CssInliner::fromHtml($html)->inlineCss($css)->render());
     }
 }

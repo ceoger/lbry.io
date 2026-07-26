@@ -166,12 +166,20 @@ search-container {
 
 drawer-children {
   @media (min-width: 951px) {
-    @extend .inner-wrap;
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 1200px;
+    padding-right: 2rem;
+    padding-left: 2rem;
+
+    &::after {
+      @include clearfix;
+    }
   }
 
   @media (max-width: 950px) {
     display: initial;
-    padding: 0 !important; // Necessary to override the 901px min-width styling of .inner-wrap
+    padding: 0;
   }
 }
 

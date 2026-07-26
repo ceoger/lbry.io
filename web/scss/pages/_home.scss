@@ -158,12 +158,12 @@ main.home {
   }
 
   a {
+    position: relative;
+    width: 520px;
+
     @media (min-width: 901px) {
       top: -2rem; left: -1rem;
     }
-
-    position: relative;
-    width: 520px;
   }
 
   img {
@@ -285,7 +285,9 @@ main.home {
 }
 
 .featured__row {
-img {
+  img {
+    filter: grayscale(100%);
+
     @media (max-width:900px) {
       width: 40%;
       padding-top: 1rem;
@@ -299,6 +301,5 @@ img {
       padding-right: 1rem;
       padding-bottom: 1rem;
     }
-    filter: grayscale(100%);
   }
 }

@@ -13,7 +13,7 @@ class Salesforce
       'timeout' => 10
     ];
 
-    public static function createContact(string $email, string $initialListId = null, string $acquisitionChannel = null)
+    public static function createContact(string $email, ?string $initialListId = null, ?string $acquisitionChannel = null)
     {
         $contactData = [
       'properties' => [

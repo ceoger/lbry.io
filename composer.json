@@ -1,21 +1,42 @@
 {
   "name": "lbry/lbry.com",
+  "description": "Official website for the LBRY protocol",
+  "license": "MIT",
   "require": {
-    "php": ">=7.2",
+    "php": "^8.5",
     "ext-curl": "*",
+    "ext-dom": "*",
+    "ext-iconv": "*",
+    "ext-intl": "*",
     "ext-mbstring": "*",
     "ext-xml": "*",
     "ext-pdo": "*",
     "ext-pdo_mysql": "*",
     "ext-json": "*",
-    "scssphp/scssphp": "^1.4",
-    "erusev/parsedown": "^1.7",
-    "erusev/parsedown-extra": "^0.8",
-    "pelago/emogrifier": "^5.0",
+    "scssphp/scssphp": "^2.1",
+    "erusev/parsedown": "^1.8",
+    "erusev/parsedown-extra": "^0.9",
+    "pelago/emogrifier": "^8.2",
     "mustangostang/spyc": "^0.6.3",
-    "masterminds/html5": "^2.7"
+    "masterminds/html5": "^2.10"
   },
   "require-dev": {
     "roave/security-advisories": "dev-latest"
+  },
+  "autoload": {
+    "classmap": [
+      "controller/",
+      "lib/",
+      "model/",
+      "view/"
+    ]
+  },
+  "scripts": {
+    "test": "@php tests/smoke.php"
+  },
+  "config": {
+    "platform": {
+      "php": "8.5.0"
+    }
   }
 }

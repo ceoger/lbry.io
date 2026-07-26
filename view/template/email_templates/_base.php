@@ -351,5 +351,4 @@
 </html>
 <?php $emailHtml = ob_get_clean() ?>
 <?php
-$e = new \Pelago\Emogrifier($emailHtml, '');
-echo trim($e->emogrify());
+echo trim(\Pelago\Emogrifier\CssInliner::fromHtml($emailHtml)->inlineCss()->render());

@@ -39,7 +39,7 @@ class RouteCollector
      */
     private $globalRoutePrefix = '';
 
-    public function __construct(RouteParser $routeParser = null)
+    public function __construct(?RouteParser $routeParser = null)
     {
         $this->routeParser = $routeParser ?: new RouteParser();
     }
@@ -49,7 +49,7 @@ class RouteCollector
         return isset($this->reverse[$name]);
     }
 
-    public function route(string $name, array $args = null): string
+    public function route(string $name, ?array $args = null): string
     {
         $url = [];
 

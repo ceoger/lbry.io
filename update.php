@@ -16,10 +16,8 @@ if (!$force && !file_exists($needsUpdateFile)) {
 
 chdir(ROOT_DIR);
 
-Shell::exec('git fetch && git reset --hard origin/master');
-Shell::exec('git submodule update --init');
-Shell::exec('git submodule update --recursive --remote');
-Shell::exec('php composer.phar install');
+Shell::exec('git pull --ff-only');
+Shell::exec('composer install --no-dev --no-interaction --optimize-autoloader --prefer-dist');
 
 View::compileCss();
 View::gzipAssets();

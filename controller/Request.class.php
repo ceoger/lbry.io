@@ -118,7 +118,11 @@ class Request
 
     public static function isSSL(): bool
     {
-        return static::getHeader('HTTPS') || strtolower(static::getHttpHeader('X_FORWARDED_PROTO')) == 'https';
+        $https = static::getHeader('HTTPS');
+        $forwardedProto = static::getHttpHeader('X-Forwarded-Proto', '');
+
+        return ($https && strtolower((string) $https) !== 'off') ||
+            strtolower($forwardedProto) === 'https';
     }
 
     public static function getReferrer(string $fallback = '/')

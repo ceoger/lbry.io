@@ -144,6 +144,7 @@ class DownloadActions extends Actions
             } else {
                 $asset = Github::getRepoAsset(GitHub::REPO_LBRY_DESKTOP, $os, $vars['preferredExt'] ?? '');
             }
+            $assetUrl = $asset['browser_download_url'] ?? null;
             $buttonLabel = __('Download for %os%', ['%os%' => $osTitle]);
 
             if (isset($vars['preferredExt']) && $vars['preferredExt']) {
@@ -154,10 +155,10 @@ class DownloadActions extends Actions
             'analyticsLabel' => $analyticsLabel,
             'buttonLabel' => $buttonLabel,
             'isDownload' => true,
-            'downloadUrl' => $asset ? $asset['browser_download_url'] : null,
+            'downloadUrl' => $assetUrl,
             'os' => $os,
             'skipRender' => isset($vars['preferredExt']) && $vars['preferredExt'] &&
-                              substr_compare($asset['browser_download_url'], $vars['preferredExt'], -strlen($vars['preferredExt'])) !== 0,
+                              (!$assetUrl || !str_ends_with($assetUrl, $vars['preferredExt'])),
             'isAuto' => Request::getParam('auto'),
           ];
 
@@ -169,7 +170,15 @@ class DownloadActions extends Actions
             }
         }
 
-        return $vars;
+        return $vars + [
+            'analyticsLabel' => '',
+            'buttonLabel' => __('Download'),
+            'isDownload' => false,
+            'downloadUrl' => null,
+            'os' => null,
+            'skipRender' => false,
+            'isAuto' => false,
+        ];
     }
 
 
