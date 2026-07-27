@@ -10,6 +10,21 @@ if (!class_exists(Controller::class) || !class_exists(View::class)) {
     throw new RuntimeException('Application classes are unavailable');
 }
 
+if (!class_exists(Github::class)) {
+    throw new RuntimeException('GitHub integration is unavailable');
+}
+
+$_SERVER['REQUEST_METHOD'] = Request::GET;
+$_SERVER['REQUEST_URI'] = '/dmca/test-claim';
+$_SERVER['HTTP_HOST'] = 'lbry.com';
+
+i18n::register();
+
+$route = Controller::execute(Request::GET, '/dmca/test-claim');
+if ($route[0] !== 'report/dmca' || $route[1]['claimId'] !== 'test-claim') {
+    throw new RuntimeException('Parameterized route dispatch failed');
+}
+
 $html = \Pelago\Emogrifier\CssInliner::fromHtml('<p>test</p>')
     ->inlineCss('p { color: red; }')
     ->render();

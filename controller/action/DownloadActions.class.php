@@ -13,7 +13,7 @@ class DownloadActions extends Actions
 
     public static function executeDownloadReleaseAsset(string $repo, string $ext, bool $allowPrerelease = false)
     {
-        return Controller::redirect(GitHub::getRepoReleaseUrl($repo, $ext, $allowPrerelease) ?: '/get', 302);
+        return Controller::redirect(Github::getRepoReleaseUrl($repo, $ext, $allowPrerelease) ?: '/get', 302);
     }
 
     public static function executeDownloadSnapshot(string $type)
@@ -56,7 +56,7 @@ class DownloadActions extends Actions
             $params['downloadUrl'] = static::IOS_STORE_URL;
             $params['osScreenshotSrc'] = 'https://spee.ch/odyseeiosimage.png';
         } else {
-            $asset = Github::getRepoAsset(GitHub::REPO_LBRY_DESKTOP, $os, $params['preferredExt']);
+            $asset = Github::getRepoAsset(Github::REPO_LBRY_DESKTOP, $os, $params['preferredExt']);
             $params['downloadUrl'] = $asset ? $asset['browser_download_url'] : null;
         }
 
@@ -142,7 +142,7 @@ class DownloadActions extends Actions
             } elseif ($os === OS::OS_IOS) {
                 $asset = ['browser_download_url' => static::IOS_STORE_URL];
             } else {
-                $asset = Github::getRepoAsset(GitHub::REPO_LBRY_DESKTOP, $os, $vars['preferredExt'] ?? '');
+                $asset = Github::getRepoAsset(Github::REPO_LBRY_DESKTOP, $os, $vars['preferredExt'] ?? '');
             }
             $assetUrl = $asset['browser_download_url'] ?? null;
             $buttonLabel = __('Download for %os%', ['%os%' => $osTitle]);
@@ -198,8 +198,8 @@ class DownloadActions extends Actions
                 $asset = ['browser_download_url' => static::IOS_STORE_URL, 'size' => 0];
                 $release = [];
             } else {
-                $release = Github::getRepoRelease(GitHub::REPO_LBRY_DESKTOP, false);
-                $asset = Github::getRepoAsset(GitHub::REPO_LBRY_DESKTOP, $os);
+                $release = Github::getRepoRelease(Github::REPO_LBRY_DESKTOP, false);
+                $asset = Github::getRepoAsset(Github::REPO_LBRY_DESKTOP, $os);
             }
 
             $vars += [
