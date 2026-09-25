@@ -2,7 +2,7 @@
 
 class Controller
 {
-    const CACHE_CLEAR_PATH = '/clear-cache';
+    public const CACHE_CLEAR_PATH = '/clear-cache';
 
     protected static $queuedFunctions = [];
 
@@ -32,8 +32,11 @@ class Controller
                 unset($viewParameters[View::LAYOUT_PARAMS]);
 
                 $content = View::render($viewTemplate, $viewParameters + ['fullPage' => true]);
-
-                Response::setContent($layout ? View::render('layout/basic', ['content' => $content] + $layoutParams) : $content);
+                if ($layout) {
+                    $content = View::render('layout/basic', ['content' => $content] + $layoutParams);
+                    $content = View::safeExternalLinks($content, Request::getHost());
+                }
+                Response::setContent($content);
             }
 
             Response::setDefaultSecurityHeaders();
@@ -49,12 +52,23 @@ class Controller
     public static function execute($method, $uri)
     {
         $router = static::getRouterWithRoutes();
-        static::performSubdomainRedirects();
+
+        $domainResult = static::performDomainRouting($uri);
+        if ($domainResult) {
+            return $domainResult;
+        }
+
+        $dispatcher = new Routing\Dispatcher($router->getData());
+
         try {
-            $dispatcher = new Routing\Dispatcher($router->getData());
             return $dispatcher->dispatch($method, $uri);
         } catch (\Routing\HttpRouteNotFoundException $e) {
-            return NavActions::execute404();
+            $lowerUri = strtolower($uri);
+            if ($lowerUri !== $uri && $dispatcher->hasMatchingRouteForUri($method, $lowerUri)) {
+                static::redirect($lowerUri, 301);
+            } else {
+                return NavActions::execute404();
+            }
         } catch (\Routing\HttpMethodNotAllowedException $e) {
             Response::setStatus(405);
             Response::setHeader('Allow', implode(', ', $e->getAllowedMethods()));
@@ -62,15 +76,34 @@ class Controller
         }
     }
 
-    protected static function performSubdomainRedirects()
+    protected static function performDomainRouting($uri)
     {
         $subDomain = Request::getSubDomain();
 
         switch ($subDomain) {
-      case 'chat':
-      case 'slack':
-        return static::redirect('https://discord.gg/Z3bERWA');
-    }
+          case 'chat':
+          case 'slack':
+            return static::redirect('https://discord.gg/SJMUq8EjXB');
+          case 'verify-chat':
+            return static::redirect('https://discord.gg/C3ZFqV3btX'); 
+        }
+
+        /*
+         * this is kind of a hack? unsure, so it probably is
+         */
+        $hostName = $_SERVER['HTTP_HOST'];
+        if ($hostName && in_array($hostName, ['lbry.org', 'lbry.tv'])) {
+            if ($uri === '/') {
+                switch ($hostName) {
+                    case 'lbry.org':
+                        return ContentActions::executeOrg();
+                    case 'lbry.tv':
+                        return ContentActions::executeTv();
+                }
+            } else {
+                return static::redirect('/');
+            }
+        }
     }
 
     protected static function getRouterWithRoutes(): \Routing\RouteCollector
@@ -80,17 +113,13 @@ class Controller
         $router->get(['/', 'home'], 'ContentActions::executeHome');
 
         $router->get(['/get', 'get'], 'DownloadActions::executeGet');
-        $router->get(['/getrubin', 'getrubin'], 'DownloadActions::executeGet');
+
         foreach (array_keys(OS::getAll()) as $os) {
             $router->get(['/' . $os, 'get-' . $os], 'DownloadActions::executeGet');
         }
+
         $router->get('/roadmap', 'ContentActions::executeRoadmap');
-
-        $router->post('/quickstart/auth', 'DeveloperActions::executeQuickstartAuth');
-        $router->get('/quickstart/{step}?', 'DeveloperActions::executeQuickstart');
-        $router->get('/quickstart/github/callback', 'DeveloperActions::executeQuickstartGithubCallback');
-
-        $router->get(['/press-kit.zip', 'press-kit'], 'ContentActions::executePressKit');
+        $router->get('/roadmap/{year}', 'ContentActions::executeRoadmap');
 
         $router->post('/postcommit', 'OpsActions::executePostCommit');
         $router->post('/log-upload', 'OpsActions::executeLogUpload');
@@ -99,23 +128,23 @@ class Controller
         $router->any('/list/subscribe', 'MailActions::executeSubscribe');
         $router->any('/list/subscribed', 'MailActions::executeSubscribed');
         $router->get('/list/unsubscribe/{email}', 'MailActions::executeUnsubscribe');
+        $router->any('/list/edit/{token}', 'MailActions::editEmailSettings');
 
         $router->any('/dmca', 'ReportActions::executeDmca');
+        $router->any('/dmca/{claimid}', 'ReportActions::executeDmcaWithClaimId');
 
-    $router->any('/youtube/sub', 'AcquisitionActions::executeYouTubeSub');
-    $router->post('/youtube/edit', 'AcquisitionActions::executeYoutubeEdit');
-    $router->post('/youtube/token', 'AcquisitionActions::executeYoutubeToken');
-    $router->any('/youtube/status/{token}', 'AcquisitionActions::executeYoutubeStatus');
-    $router->any('/youtube/status', 'AcquisitionActions::executeRedirectYoutube');
-    $router->any('/youtube', 'AcquisitionActions::executeYouTube');
-    $router->get('/youtube/{version}', 'AcquisitionActions::executeYouTube');
+        $router->any('/team/{slug}', 'TeamActions::executeBio');
 
-        $router->get('/verify/{token}', 'AcquisitionActions::executeVerify');
+        $router->any('/youtube/status/{token}', 'AcquisitionActions::executeYoutubeStatus');
+        $router->any('/youtube', 'AcquisitionActions::executeYouTube');
 
+        $router->get('/i18n/get/{project}/{resource}/{language}.json', 'i18nActions::executeServeTranslationFile');
 
         $router->get('/news/category/{category}', 'ContentActions::executePostCategoryFilter');
 
-        $router->post('/set-culture', 'i18nActions::setCulture');
+        $router->post('/i18n/set-culture', 'i18nActions::setCulture');
+
+        $router->get('/snapshot/{type}', 'DownloadActions::executeDownloadSnapshot');
 
         $permanentRedirectsPath = ROOT_DIR . '/data/redirect/permanent.yaml';
         $tempRedirectsPath = ROOT_DIR . '/data/redirect/temporary.yaml';
@@ -131,21 +160,21 @@ class Controller
             }
         }
 
-        $router->any('/get/lbry.pre.{ext:c}', 'DownloadActions::executeGetAppPrereleaseRedirect');
-        $router->any('/get/lbry.{ext:c}', 'DownloadActions::executeGetAppRedirect');
-        $router->any('/get/lbrynet.{os:c}.zip', 'DownloadActions::executeGetDaemonRedirect');
+        $router->get('/releases/{repo:c}.{ext:c}', 'DownloadActions::executeDownloadReleaseAsset');
+        $router->get('/releases/pre/{repo:c}.{ext:c}', 'DownloadActions::executeDownloadPrereleaseAsset');
 
         $router->get([ContentActions::URL_NEWS . '/{slug:c}?', 'news'], 'ContentActions::executeNews');
         $router->get([ContentActions::URL_FAQ . '/{slug:c}?', 'faq'], 'ContentActions::executeFaq');
-        $router->get([ContentActions::URL_BOUNTY . '/{slug:c}?', 'bounty'], 'ContentActions::executeBounty');
-        $router->get([ContentActions::URL_PRESS . '/{slug:c}', 'press'], 'ContentActions::executePress');
-//    $router->get([ContentActions::URL_CREDIT_REPORTS . '/{slug:c}?', 'faq'], 'ContentActions::executeFaq');
+        $router->get(['/bounty/{slug:c}?', 'bounty'], 'ContentActions::executeBountyRedirect');
         $router->get(ContentActions::URL_CREDIT_REPORTS, 'ContentActions::executeCreditReports');
         $router->get([ContentActions::URL_CREDIT_REPORTS . '/{year:c}-q{quarter:c}', ContentActions::URL_CREDIT_REPORTS . '/{year:c}-Q{quarter:c}'], 'ContentActions::executeCreditReport');
 
         $router->get('/{slug}', function (string $slug) {
+            if ($slug !== strtolower($slug)) {
+                return static::redirect('/' . strtolower($slug), 301);
+            }
             if (View::exists('page/' . $slug)) {
-                Response::enableHttpCache();
+                Response::enablePublicImmutableCache();
                 return ['page/' . $slug, []];
             } else {
                 return NavActions::execute404();

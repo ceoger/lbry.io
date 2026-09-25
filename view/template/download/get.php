@@ -1,26 +1,76 @@
 <?php Response::setMetaDescription(__('description.get'))  ?>
-<?php Response::addMetaImage(Request::getHostAndProto() . '/img/lbry-ui.png') ?>
+<?php Response::addMetaImage(Request::getHostAndProto() . '/img/og-image.png?_cache=' . date('Y-m-d')) ?>
 <?php NavActions::setNavUri('/get') ?>
-<?php echo View::render('nav/_header', ['isDark' => false]) ?>
-<main class="column-fluid">
-  <div class="span7">
-    <div class="cover cover-dark cover-dark-grad content content-stretch content-dark">
-      <h1><?php echo __('download.for-os', ['%os%' => $osTitle]) ?> <span class="<?php echo $osIcon ?>"></span></h1>
+
+<main class="ancillary">
+  <section class="hero hero--half-height">
+    <div class="inner-wrap inner-wrap--center-hero">
+      <h1>
+        <?php echo $title ?>
+      </h1>
+    </div>
+  </section>
+
+  <section>
+    <div class="inner-wrap">
       <?php if ($downloadUrl): ?>
-        <p>
-          Securely download the LBRY app here, and see what all the fuss is about!
-        </p>
-        <p>
-        </p>
-        <div class="text-center">
+        <div style="margin-bottom: 2rem; text-align: center;">
+          <?php $metaHtml = !in_array($os, [OS::OS_ANDROID, Os::OS_IOS]) ? View::Render('download/_meta') : false ?>
           <?php echo View::Render('download/_downloadButton', [
-              'buttonStyle' => 'alt',
-              'sourceLink' => true
+            'buttonStyle' => 'primary',
+            'preferredExt' => $preferredExt
           ])?>
-          <img src="https://spee.ch/5a3e08d52dd2d7cb1c63a480b45dea8b4679cf01/lbryget-gif-mastertest.gif" />
+        <?php if ($os === OS::OS_LINUX && $preferredExt === 'AppImage'): ?>
+          <?php echo View::Render('download/_downloadButton', [
+            'buttonStyle' => 'primary',
+            'preferredExt' => 'deb'
+          ])?>
+        <?php endif ?>
+
+          <?php if ($os === OS::OS_ANDROID): ?>
+            <p style="font-size: 0.8rem;">You can also <a href="http://lbry.com/releases/lbry-android.apk" title="Download our Android app directly">download</a> our Android app directly.</p>
+          <?php endif ?>
+
+
+          <?php if ($metaHtml): ?>
+          <br/>
+          <?php echo $metaHtml ?>
+          <?php endif ?>
         </div>
+
+        <?php if ($os === OS::OS_ANDROID): ?>
+          <figure>
+            <img
+              alt="Screenshot of LBRY"
+              class="tall"
+              src="<?php echo $osScreenshotSrc ?>"
+            />
+          </figure>
+        <?php elseif ($os === OS::OS_IOS): ?>
+            <figure>
+                <img
+                        alt="Screenshot of Odysee"
+                        class="tall"
+                        src="<?php echo $osScreenshotSrc ?>"
+                />
+            </figure>
+        <?php else: ?>
+          <video
+            autoplay
+            loop
+            poster="https://spee.ch/f/2019-08-lbry-interface-poster.jpg"
+            playsinline
+            style="display: block; margin-right: auto; margin-left: auto; max-width: 700px; "
+          >
+            <source src="https://spee.ch/b/2019-09-lbry-interface-webm-2.webm" type="video/webm"/>
+            <source src="https://spee.ch/0/2019-09-lbry-interface-mp4-2.mp4" type="video/mp4"/>
+          </video>
+        <?php endif ?>
+
       <?php else: ?>
+
         <p>{{download.unavailable}}</p>
+
         <?php echo View::render('mail/_subscribeForm', [
           'tag' => $os,
           'submitLabel' => 'Join List',
@@ -28,13 +78,14 @@
           'largeInput' => true,
           'btnClass' => 'btn-alt btn-large',
         ]) ?>
+
       <?php endif ?>
     </div>
-  </div>
-  <div class="span5">
-    <?php echo View::render('download/_list', ['excludeOs' => $os]) ?>
-    <?php echo View::render('download/_social') ?>
-  </div>
-</main>
+  </section>
 
-<?php echo View::render('nav/_footer') ?>
+  <section>
+    <div class="inner-wrap">
+      <?php echo View::render('download/_list', ['excludeOs' => $os]) ?>
+    </div>
+  </section>
+</main>

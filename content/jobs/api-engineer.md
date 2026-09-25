@@ -1,12 +1,11 @@
 ---
-title: API Engineer
-order: 5
-status: active
-location: remote
-url: https://hire.withgoogle.com/public/jobs/lbryio/view/P_AAAAAADAAADFYg8lMqDBXz?trackingTag=joinUs
+title: Backend Engineer
+order: 6
+status: closed
+location: remote (global)
 ---
-This job combines the coolest language with a slightly less cool objective for an overall attractiveness quotient of still pretty neat.
 
-Specifically, being an API engineer at LBRY involves creating and modifying web-based API endpoints in Go. These endpoints are used for everything from analytics and user databasing to reward disbursement, notifications, and more.
+Backend engineers deal with the server-side portion of software related to [odysee.com](https://odysee.com). 
 
-This is the only closed source project at LBRY. Competence in creating sane, secure, and well-structured API signatures is required, as is a mind for security. Strong knowledge of SQL and data structures is also necessary. This work involves interactions with blockchain, but no direct work on the LBRY blockchain or protocol.
+This position involves developing Odysee's backend infrastructure to serve tens of millions of active users. It involves designing and implementing APIs in Go, 
+working with SQL databases, managing a Kubernetes cluster, and writing lots of tests. Experience with video delivery (e.g. CDNs, livestreaming) and high-availability systems is a plus.

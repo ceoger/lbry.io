@@ -10,7 +10,7 @@ include __DIR__ . '/../bootstrap.php';
 define('IS_PRODUCTION', Config::get(Config::IS_PROD) === true);
 
 ini_set('display_errors', IS_PRODUCTION ? 'off' : 'on');
-error_reporting(IS_PRODUCTION ? 0 : (E_ALL | E_STRICT));
+error_reporting(IS_PRODUCTION ? 0 : E_ALL);
 
 register_shutdown_function('Controller::shutdown');
 
@@ -28,6 +28,8 @@ try {
         View::compileCss();
     }
     Controller::dispatch(Request::getRoutingUri());
+    flush();
+    Response::invokePostRenderCallbacks();
 } catch (Throwable $e) {
     if (IS_PRODUCTION) {
         Slack::sendErrorIfProd($e);

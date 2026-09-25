@@ -1,20 +1,28 @@
-<?php Response::setMetaDescription($post->getTitle()) ?>
-<?php Response::addMetaImages($post->getImageUrls()) ?>
+<?php Response::addMetaImages($post->getImageUrls() ?: [Request::getHostAndProto() . '/img/og-faq.png?_cache=' . date('Y-m-d')]) ?>
+<?php Response::setMetaDescription(htmlspecialchars($post->getContentText(20, true))) ?>
 <?php NavActions::setNavUri('/learn') ?>
-<?php echo View::render('nav/_header') ?>
-  <main>
-    <section class="post-content">
-      <div class="content">
-        <br />
-        <div class="meta">
-          <a href="/faq">« {{page.faq.back}}</a>
-        </div>
-        <h1><?php echo htmlentities($post->getTitle()) ?></h1>
-        <?php echo $post->getContentHtml() ?>
-        <p class="meta">
-          See a mistake? <a href="<?php echo $post->getGithubEditUrl() ?>">Edit this page on GitHub</a>.
-        </p>
-      </div>
-    </section>
-  </main>
-<?php echo View::render('nav/_footer') ?>
+
+<main class="ancillary">
+  <section class="hero hero--half-height">
+    <div class="inner-wrap inner-wrap--center-hero">
+      <h1><?php echo htmlentities($post->getTitle()) ?></h1>
+    </div>
+  </section>
+
+  <section>
+    <div class="inner-wrap">
+        <section>
+          <small class="meta">
+              <a href="/faq">« {{page.faq.back}}</a>
+          </small>
+        </section>
+      <?php echo $post->getContentHtml() ?>
+    </div>
+  </section>
+
+  <section>
+    <div class="inner-wrap">
+      <p>See a mistake? <a href="<?php echo $post->getGithubEditUrl() ?>">Edit this page on GitHub</a>.</p>
+    </div>
+  </section>
+</main>

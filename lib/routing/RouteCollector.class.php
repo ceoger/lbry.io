@@ -4,9 +4,9 @@ namespace Routing;
 
 class RouteCollector
 {
-    const DEFAULT_CONTROLLER_ROUTE = 'index';
+    public const DEFAULT_CONTROLLER_ROUTE = 'index';
 
-    const APPROX_CHUNK_SIZE = 10;
+    public const APPROX_CHUNK_SIZE = 10;
 
     /**
      * @var RouteParser
@@ -39,7 +39,7 @@ class RouteCollector
      */
     private $globalRoutePrefix = '';
 
-    public function __construct(RouteParser $routeParser = null)
+    public function __construct(?RouteParser $routeParser = null)
     {
         $this->routeParser = $routeParser ?: new RouteParser();
     }
@@ -49,7 +49,7 @@ class RouteCollector
         return isset($this->reverse[$name]);
     }
 
-    public function route(string $name, array $args = null): string
+    public function route(string $name, ?array $args = null): string
     {
         $url = [];
 

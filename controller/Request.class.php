@@ -2,10 +2,10 @@
 
 class Request
 {
-    const GET     = 'GET';
-    const POST    = 'POST';
-    const HEAD    = 'HEAD';
-    const OPTIONS = 'OPTIONS';
+    public const GET     = 'GET';
+    public const POST    = 'POST';
+    public const HEAD    = 'HEAD';
+    public const OPTIONS = 'OPTIONS';
 
     protected static $method;
 
@@ -118,12 +118,11 @@ class Request
 
     public static function isSSL(): bool
     {
-        return static::getHeader('HTTPS') || strtolower(static::getHttpHeader('X_FORWARDED_PROTO')) == 'https';
-    }
+        $https = static::getHeader('HTTPS');
+        $forwardedProto = static::getHttpHeader('X-Forwarded-Proto', '');
 
-    public static function getServerName(): string
-    {
-        return static::getHeader('SERVER_NAME');
+        return ($https && strtolower((string) $https) !== 'off') ||
+            strtolower($forwardedProto) === 'https';
     }
 
     public static function getReferrer(string $fallback = '/')
@@ -150,10 +149,5 @@ class Request
     ];
 
         return preg_match('/(' . join('|', $bots) . ')/i', static::getUserAgent());
-    }
-    //Method that encode html tags to special character
-    public static function encodeStringFromUser($string)
-    {
-        return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
     }
 }

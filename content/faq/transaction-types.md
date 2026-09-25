@@ -3,30 +3,31 @@ title: What types of LBRY transactions are there?
 category: wallet
 ---
 
-There are a number of transaction types which take place on the LBRY blockchain. The LBRY app displays these transactions in the **Overview** and **History** tabs on the Wallet page.
+There are a number of transaction types which take place on the LBRY blockchain. LBRY displays these transactions on the Wallet page. You can filter on various types and statuses of these transactions using the options provided. 
+![](https://spee.ch/5/filters.jpeg)
 
-Many transaction types also have details associated with them such as the claim/channel name or if they came from an LBRY Reward. You can also see additional details by clicking the transaction ID and accessing them in the [LBRY block explorer](https://explorer.lbry.io).
+Many transaction types also have details associated with them such as the claim/channel name or if they came from an LBRY Reward. You can also see additional details by clicking the transaction ID and accessing them in the [LBRY block explorer](https://explorer.lbry.com).
 
-| Type | Details |
---- | --- 
-| **Spends** | LBC is sent to another address or used to purchase content.<br/>Also, revoked content/claimed tips show as Spends<sup>1</sup>
-| **Receives** | LBC received at wallet address, an incoming content payment or LBRY Reward
-| **Publishes** | LBC claim associated with content publication.<br/>Claims can be revoked via trash button<sup>2</sup>
-| **Channels** | LBC claim associated with Channel creation.<br/>Channels can be revoked via trash button
-| **Tips** | Tips sent or received. Received tips can be claimed via unlock button
-| **Supports** | Claim support sent or received. Supports can be revoked via trash button
-| **Updates** | Update to previously published content<sup>3</sup>. Updated claims can be revoked via trash button
+## Transaction types
 
-<sup>1</sup> The amount shown in the transaction list only reflects the revoke/claim fee paid. See transaction details for the amount that is returned to your wallet. 
+| Type        | Details |
+------------- | ---------------
+| **Payment** | LBC that is sent or Received
+| **Sent** | LBC is sent to a wallet address - sent LBC, outgoing tips, or content purchases.
+| **Receive** | LBC received at a wallet address - received LBC, incoming tips, or content purchases.<br/>***Active** = currently supporting your content. **Historical** = claimed into your balance.*  
+| **Publish** | LBC claim associated with content publication.<br/>Claims can be revoked via trash icon<sup>1</sup>. Historical records are previous updates<sup>2</sup>.
+| **Channel** | LBC claim associated with Channel creation.<br>Channel claims can be revoked via trash button. Historical records are previous updates<sup>2</sup>.
+| **Repost** | Link to another LBRY claim <br/>Reposts can be revoked via trash icon<sup>1</sup>.
+| **Support** | LBC used to support your own or other content. Support claims can be revoked via trash icon<sup>1</sup>. <br/>***Active** = currently locked. **Historical** = revoked.*  
 
-<sup>2</sup> If revoke icon is not available, the claim may have already been revoked, or there may be an update to the claim (which can be revoked).
+<sup>1</sup> If the revoke icon is not available, the claim may have already been revoked, or it may be a historical record.
 
-<sup>3</sup> Amount shown does not reflect balance taken out of wallet - the update process uses the original bid amount, and the resulting transaction may result in a positive or negative balance to your wallet based on the updated bid amount. This will be fixed in a future release.
+<sup>2</sup> Amount shown does not reflect balance taken out of wallet - the update process uses the original bid amount, and the resulting transaction may result in a positive or negative balance to your wallet based on the updated bid amount.
 
-### Additional Actions
+## Additional Actions
 
-Certain transactions allow you to take additional actions directly from the transaction screen, such as claiming an incoming tip via the unlock button and revoking a claim via the trash button. Once the action is taken, the action icon will disappear, and the resulting transaction will appear in your history. 
+Certain transactions allow you to take additional actions directly from the transaction screen, such as claiming an incoming tip via the unlock button and revoking a claim via the trashcan button. Once the action is taken, the action icon be greyed out, and LBC will be returned to your wallet. 
 
-### What About Purchases?
+## What about purchase details?
 
-Content purchases and incoming content payments are not currently available but are planned for a future release. Currently these show as spends.
+Content purchases and incoming content payments do not currently show which content they are linked to. This is coming in a future release.

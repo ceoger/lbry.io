@@ -12,12 +12,14 @@ function js_end()
 
 class View
 {
-    const LAYOUT_PARAMS = '_layout_params';
+    public const LAYOUT_PARAMS = '_layout_params';
 
-    const WEB_DIR  = ROOT_DIR . '/web';
-    const SCSS_DIR = self::WEB_DIR . '/scss';
-    const CSS_DIR  = self::WEB_DIR . '/css';
-    const JS_DIR   = self::WEB_DIR . '/js';
+    public const WEB_DIR  = ROOT_DIR . '/web';
+    public const COMPONENTS_DIR = self::WEB_DIR . '/components/sass';
+    public const COLORS_DIR = self::WEB_DIR . '/scss/color';
+    public const SCSS_DIR = self::WEB_DIR . '/scss';
+    public const CSS_DIR  = self::WEB_DIR . '/css';
+    public const JS_DIR   = self::WEB_DIR . '/js';
 
     public static function render($template, array $vars = []): string
     {
@@ -59,7 +61,7 @@ class View
     {
         extract($___vars);
         ob_start();
-        ob_implicit_flush(0);
+        ob_implicit_flush(false);
 
         try {
             require(static::getFullPath($___template));
@@ -115,23 +117,19 @@ class View
 
     public static function compileCss()
     {
-        $scssCompiler = new \Leafo\ScssPhp\Compiler();
+        $scssCompiler = new \ScssPhp\ScssPhp\Compiler();
 
-        $scssCompiler->setImportPaths([self::SCSS_DIR]);
+        $scssCompiler->setImportPaths([self::COMPONENTS_DIR, self::COLORS_DIR, self::SCSS_DIR]);
 
         $compress = true;
         if ($compress) {
-            $scssCompiler->setFormatter('Leafo\ScssPhp\Formatter\Crunched');
+            $scssCompiler->setOutputStyle(\ScssPhp\ScssPhp\OutputStyle::COMPRESSED);
         } else {
-            $scssCompiler->setFormatter('Leafo\ScssPhp\Formatter\Expanded');
-            $scssCompiler->setLineNumberStyle(Leafo\ScssPhp\Compiler::LINE_COMMENTS);
+            $scssCompiler->setOutputStyle(\ScssPhp\ScssPhp\OutputStyle::EXPANDED);
         }
 
-        $all_css = $scssCompiler->compile(file_get_contents(self::SCSS_DIR . '/all.scss'));
+        $all_css = $scssCompiler->compileString(file_get_contents(self::SCSS_DIR . '/all.scss'))->getCss();
         file_put_contents(self::CSS_DIR . '/all.css', $all_css);
-
-        $youtube_css = $scssCompiler->compile(file_get_contents(self::SCSS_DIR . '/youtube.scss'));
-        file_put_contents(self::CSS_DIR . '/youtube.css', $youtube_css);
     }
 
     public static function gzipAssets()
@@ -176,5 +174,41 @@ class View
     {
         Response::setHeader(Response::HEADER_CONTENT_TYPE, 'application/json');
         return ['internal/json', ['json' => $data, '_no_layout' => true]];
+    }
+
+    public static function safeExternalLinks(string $html, string $domain): string
+    {
+        try {
+            $parser = new Masterminds\HTML5();
+            $dom = $parser->loadHTML($html);
+            $links = $dom->getElementsByTagName('body') ?
+                $dom->getElementsByTagName('body')[0]->getElementsByTagName('a') :
+                $dom->getElementsByTagName('a');
+
+            foreach ($links as $link) {
+                if ($link->getAttribute('href') && static::isLinkExternal($link->getAttribute('href'), $domain)) {
+                    $link->setAttribute('rel', "noopener");
+                }
+            }
+
+            return $parser->saveHTML($dom);
+        } catch (Error $e) {
+            Slack::slackGrin();
+            return $html;
+        }
+    }
+
+    public static function isLinkExternal(string $url, string $domain): bool
+    {
+        $components = parse_url(strtolower($url));
+        $domain     = strtolower($domain);
+
+        return $url
+               &&
+               !empty($components['host']) // relative urls are not external
+               &&
+               $components['host'] !== $domain
+               &&
+               mb_substr($components['host'], -mb_strlen('.' . $domain)) !== '.' . $domain;
     }
 }

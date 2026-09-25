@@ -1,9 +1,11 @@
 ---
 name: Alex Grintsvayg
 role: Founder, Chief Technical Officer
-email: grin@lbry.io
-twitter: lyoshenka
+email: grin@lbry.com
+twitter: grin_io
 github: lyoshenka
 ---
 
-Alex, AKA Grin, drives technology development at LBRY and manages infrastructure growth. Grin has previously designed and managed scalable infrastructure solutions for SaaS firms. Bringing LBRY to mainstream scale is his primary goal. Alex holds degrees in Computer Science and Psychology from Rensselaer Polytechnic Institute.
+Grin drives technology development and manages infrastructure growth. Bringing LBRY to mainstream scale is his primary goal. Before LBRY, Grin designed and managed scalable infrastructure solutions for SaaS firms. He holds degrees in Computer Science and Psychology from Rensselaer Polytechnic Institute.
+
+On the side, Grin is a competitive ultimate frisbee player, a father of two, and an occasional writer at [grin.io](https://grin.io).

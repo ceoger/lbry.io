@@ -16,7 +16,7 @@ class Dispatcher
      * @param RouteDataInterface       $data
      * @param HandlerResolverInterface $resolver
      */
-    public function __construct(RouteData $data, HandlerResolverInterface $resolver = null)
+    public function __construct(RouteData $data, ?HandlerResolverInterface $resolver = null)
     {
         $this->staticRouteMap = $data->getStaticRoutes();
 
@@ -51,10 +51,37 @@ class Dispatcher
 
         $resolvedHandler = $this->handlerResolver->resolve($handler);
 
-        $response = call_user_func_array($resolvedHandler, $vars);
+        $response = call_user_func_array($resolvedHandler, array_values($vars));
 
         return $this->dispatchFilters($afterFilter, $response);
     }
+
+    public function hasMatchingRouteForUri($httpMethod, $uri)
+    {
+        if (isset($this->staticRouteMap[$uri])) {
+            $routes = $this->staticRouteMap[$uri];
+
+            try {
+                if (!isset($routes[$httpMethod])) {
+                    $httpMethod = $this->checkFallbacks($routes, $httpMethod);
+                }
+            } catch (HttpMethodNotAllowedException $e) {
+                return false;
+            }
+
+            return (bool)$routes[$httpMethod];
+        }
+
+        try {
+            $handler = $this->dispatchVariableRoute($httpMethod, $uri);
+            return (bool)$handler;
+        } catch (HttpRouteNotFoundException | HttpMethodNotAllowedException $e) {
+            return false;
+        }
+
+        return false;
+    }
+
 
     /**
      * Dispatch a route filter.

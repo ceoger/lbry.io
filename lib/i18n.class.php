@@ -43,7 +43,8 @@ class i18n
 
     public static function formatCurrency($amount, $currency = 'USD')
     {
-        return '<span class="formatted-currency">' . money_format('%.2n', $amount) . '</span>';
+        $formatter = new NumberFormatter(static::$language . '_' . static::$country, NumberFormatter::CURRENCY);
+        return '<span class="formatted-currency">' . $formatter->formatCurrency((float)$amount, $currency) . '</span>';
     }
 
     public static function formatCredits($amount)

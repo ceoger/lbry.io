@@ -4,13 +4,11 @@ class OpsActions extends Actions
 {
     public static function executeClearCache(): array
     {
-        if (!ini_get('apc.enabled') || !function_exists('apc_clear_cache')) {
+        if (!Apc::isEnabled()) {
             return View::renderJson(['success' => false, 'error' => 'Cache not enabled']);
         }
 
-        apc_clear_cache();
-        apc_clear_cache('user');
-        apc_clear_cache('opcode');
+        apcu_clear_cache();
 
         return View::renderJson(['success' => true]);
     }
@@ -35,7 +33,7 @@ class OpsActions extends Actions
             }
 
             $rawPost = file_get_contents('php://input');
-            $secret  = Config::get(Config::GITHUB_KEY);
+            $secret = Config::get(Config::GITHUB_KEY);
             if ($hash !== hash_hmac($algo, $rawPost, $secret)) {
                 return NavActions::execute400(['error' => 'Hash does not match.']);
             }

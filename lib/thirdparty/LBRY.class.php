@@ -1,58 +1,52 @@
 <?php
 
-
 class LBRY
 {
+    public const DEFAULT_TIMEOUT = 10;
+
     public static function getApiUrl($endpoint)
     {
+        if (!strlen(Config::get(Config::LBRY_API_SERVER)) > 0) {
+            throw new Exception("API server URL is missing from configuration");
+        }
+
         return Config::get(Config::LBRY_API_SERVER) . $endpoint;
     }
 
-    public static function getLBCtoUSDRate()
+    public static function listTags($authToken)
     {
-        $response = CurlWithCache::get(static::getApiUrl('/lbc/exchange_rate'), [], [
-      'cache' => 3600, //one hour
-      'json_response' => true
-    ]);
-        return $response['data']['lbc_usd'] ?? 0;
+        $response = Curl::get(static::getApiUrl('/tag/list'), ['auth_token' => $authToken], ['json_response' => true]);
+        return $response['data'] ?? [];
     }
 
     public static function subscribe($email, $tag = null)
     {
         return Curl::post(static::getApiUrl('/list/subscribe'), array_filter([
-      'email' => $email,
-      'tag' => $tag,
-    ]), ['json_response' => true]);
+            'email' => $email,
+            'tag' => $tag,
+        ]), ['json_response' => true, 'timeout' => static::DEFAULT_TIMEOUT]);
+    }
+
+    public static function emailStatus($token)
+    {
+        list($status, $headers, $body) = Curl::doCurl(
+            Curl::POST,
+            static::getApiUrl('/user_email/status'),
+            ['auth_token' => $token],
+            ['json_response' => true, 'timeout' => static::DEFAULT_TIMEOUT]
+        );
+        return array($status,$headers,$body);
     }
 
     public static function unsubscribe($email)
     {
-        return Curl::post(static::getApiUrl('/list/unsubscribe'), ['email' => $email], ['json_response' => true]);
+        return Curl::post(static::getApiUrl('/user/unsubscribe'), ['email' => $email], ['json_response' => true, 'timeout' => static::DEFAULT_TIMEOUT]);
     }
 
-    public static function connectYoutube($channel_name)
+    public static function logWebVisitor($site, $visitorID, $IPAddress)
     {
-        $type = 'sync';
-        return Curl::post(static::getApiUrl('/yt/new'), ['desired_lbry_channel_name' => $channel_name, 'type' => $type], ['json_response' => true]);
-    }
-
-    // Check the sync status
-    public static function statusYoutube($status_token)
-    {
-        return Curl::get(static::getApiUrl('/yt/status'), ['status_token' => $status_token], ['json_response' => true]);
-    }
-
-    public static function youtubeReward()
-    {
-        return CurlWithCache::post(static::getApiUrl('/yt/rewards'), [], ['cache' => 3600, 'json_response' => true]);
-    }
-
-    public static function editYouTube($status_token, $channel_name, $email, $sync_consent)
-    {
-        if ($email == null) {
-            return Curl::post(static::getApiUrl("/yt/update"), ['status_token' => $status_token, 'new_preferred_channel' => $channel_name, 'sync_consent' => $sync_consent], ['json_response' => true]);
-        } else {
-            return Curl::post(static::getApiUrl("/yt/update"), ['status_token' => $status_token, 'new_email' => $email, 'new_preferred_channel' => $channel_name, 'sync_consent' => $sync_consent], ['json_response' => true]);
+        if (IS_PRODUCTION) {
+            return Curl::post(static::getApiUrl("/visitor/new"), ['site' => $site, 'visitor_id' => $visitorID, 'ip_address' => $IPAddress], ['json_response' => true, 'timeout' => static::DEFAULT_TIMEOUT]);
         }
     }
 }

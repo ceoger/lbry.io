@@ -3,11 +3,12 @@ author: jeremy-kauffman
 title: 'Latest LBRY App Adds New First Run, Wallet, Invites, Rewards and More'
 date: '2017-08-31 15:19:00'
 ---
-The latest LBRY app, v0.15 and the first update since open beta, is now available. **[Get it here](https://lbry.io/get)**.
+
+The latest LBRY app, v0.15 and the first update since open beta, is now available. [**Get it here**](/get).
 
 ## Release Notes
 
-The release notes are below. These notes are copied from the [GitHub releases page](https://github.com/lbryio/lbry-app/releases), which is the official source of release notes.
+The release notes are below. These notes are copied from the [GitHub releases page](https://github.com/lbryio/lbry-desktop/releases), which is the official source of release notes.
 
 For immediate notification of releases, you can watch the project on GitHub.
 
@@ -21,7 +22,7 @@ For immediate notification of releases, you can watch the project on GitHub.
 
 ### Changed
   * Updated to daemon [0.15](https://github.com/lbryio/lbry/releases). Most relevant changes to the app are improved announcing of content, and a fix for the daemon getting stuck running.
-  * Significant refinements to the first-run process, the process for new users, and introducing people to LBRY and LBRY credits.
+  * Significant refinements to the first-run process, the process for new users, and introducing people to LBRY and LBRY Credits.
 ![New Reward Enrollment](https://spee.ch/9/newlbryrewardproof.png)
   * Changed Wallet landing page to summarize the status of other areas. Refactored wallet and transaction logic.
   * Added icons to missing page, improved icon and title logic.
@@ -48,10 +49,6 @@ For immediate notification of releases, you can watch the project on GitHub.
   * Fixed video sizing for squat videos (#492)
   * Fixed issues with small prices (#461)
   * Fixed issues with negative values not being stopped by the app on entry (#441)
-
-### Deprecated
-  *
-  *
 
 ### Removed
   * Removed the label "Max Purchase Price" from the settings page. It was redundant.

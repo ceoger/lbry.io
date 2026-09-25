@@ -1,12 +1,15 @@
 ---
 title: Protocol Engineer
-order: 4
-status: active
-location: remote
-url: https://hire.withgoogle.com/public/jobs/lbryio/view/P_AAAAAADAAADALc6v5NkAOf?trackingTag=joinUs
+order: 3
+status: closed
+location: remote (global)
 ---
-The LBRY protocol consists of a [set of APIs](https://lbry.io/api) provided via a daemon. This daemon is comprised of several sub-components, and interacts with the blockchain, wallet, and other remote daemons that constitute the LBRY data network.
 
-The LBRY [daemon](https://github.com/lbryio/lbry) and [wallet](https://github.com/lbryio/lbryum) are both written in Python, but maybe you're the one to rewrite them in Go (we're kidding) (probably).
+Protocol engineers are responsible for building and maintaining the code that powers the LBRY network. 
 
-Competence with security, operating systems, and networks is mandatory. Experience with peer-to-peer technology is beneficial but not required.
+Protocol work involves deeply technical things like networking (DHT, TCP, UDP), databases (key-value and SQL), filesystems. 
+It also involves maintaining an open-source project: communicating clearly in writing, reviewing code contributions, and 
+interacting with the wider LBRY community. You can be a great protocol engineer by excelling at either half of the equation or by showing a strong ability to bridge the two halves.
+
+The [primary codebase](https://github.com/lbryio/lbry-sdk) is currently in Python, but we're migrating to Go. 
+Experience with either language, or with blockchain or peer-to-peer technology, is beneficial but not required. 

@@ -2,7 +2,7 @@
 
 class Curl
 {
-    const
+    public const
     GET = 'GET',
     POST = 'POST',
     PUT = 'PUT',
@@ -147,8 +147,6 @@ class Curl
             throw new CurlException($ch);
         }
 
-        curl_close($ch);
-
         return [$statusCode, $headers, $responseContent];
     }
 }
@@ -160,7 +158,7 @@ class CurlException extends Exception
     protected $info;
     protected $handle;
 
-    public function __construct($curlHandle, Exception $previous = null)
+    public function __construct($curlHandle, ?Exception $previous = null)
     {
         $this->handle = $curlHandle;
         $this->errno  = curl_errno($curlHandle);

@@ -2,38 +2,40 @@
 
 class Response
 {
-    const HEADER_STATUS   = 'Status';
-    const HEADER_LOCATION = 'Location';
+    public const HEADER_STATUS   = 'Status';
+    public const HEADER_LOCATION = 'Location';
 
-    const HEADER_CACHE_CONTROL = 'Cache-Control';
-    const HEADER_LAST_MODIFIED = 'Last-Modified';
-    const HEADER_ETAG          = 'Etag';
+    public const HEADER_CACHE_CONTROL = 'Cache-Control';
+    public const HEADER_ETAG          = 'Etag';
 
-    const HEADER_CONTENT_TYPE         = 'Content-Type';
-    const HEADER_CONTENT_LENGTH       = 'Content-Length';
-    const HEADER_CONTENT_DISPOSITION  = 'Content-Disposition';
-    const HEADER_CONTENT_TYPE_OPTIONS = 'X-Content-Type-Options';
-    const HEADER_CONTENT_ENCODING     = 'Content-Encoding';
-    const HEADER_CROSS_ORIGIN = 'Access-Control-Allow-Origin';
+    public const HEADER_CONTENT_TYPE         = 'Content-Type';
+    public const HEADER_CONTENT_LENGTH       = 'Content-Length';
+    public const HEADER_CONTENT_DISPOSITION  = 'Content-Disposition';
+    public const HEADER_CONTENT_TYPE_OPTIONS = 'X-Content-Type-Options';
+    public const HEADER_CONTENT_ENCODING     = 'Content-Encoding';
+    public const HEADER_CROSS_ORIGIN = 'Access-Control-Allow-Origin';
 
     protected static $metaDescription = '';
     protected static $metaTitle = '';
     protected static $jsCalls = [];
     protected static $assets = [
     'js'  => [
-      '/js/jquery-3.3.1.min.js',
+      '/js/jquery-3.4.1.min.js',
       '/js/global.js'
     ],
     'css' => ['/css/all.css']
   ];
-    protected static $headers = [];
+    protected static $headers = [
+      'Cache-Control' => 'private, no-cache'
+    ];
     protected static $headersSent = false;
     protected static $content = '';
     protected static $contentSent = false;
-    protected static $isHeadersOnly = false;
     protected static $gzipResponseContent = true;
     protected static $metaImages = [];
     protected static $facebookAnalyticsType = "PageView";
+
+    private static $PostRenderCallbacks = array();
 
     public static function setMetaDescription($description)
     {
@@ -59,7 +61,7 @@ class Response
 
     public static function getMetaImages()
     {
-        return static::$metaImages ?: [Request::getHostAndProto() . '/img/lbry-green-meta-1200x900.png'];
+        return static::$metaImages ?: [Request::getHostAndProto() . '/img/og-image.png?_cache=' . date('Y-m-d')];
     }
 
     public static function setMetaTitle($title)
@@ -69,7 +71,7 @@ class Response
 
     public static function getMetaTitle()
     {
-        return static::$metaTitle;
+        return trim(static::$metaTitle);
     }
 
     public static function guessMetaTitle($content)
@@ -80,11 +82,11 @@ class Response
             if ($headerValue == '1' || !$title) {
                 $title = $titleMatches[2][$matchIndex];
                 if ($headerValue == '1') {
-                    return $title;
+                    return trim($title);
                 }
             }
         }
-        return $title;
+        return trim($title);
     }
 
     public static function getJsCalls()
@@ -142,8 +144,21 @@ class Response
 
     public static function send()
     {
+        $status = static::getHeader(static::HEADER_STATUS);
+        $sendContent = true;
+        if ((!$status || $status === 200) &&
+          static::getHeader(static::HEADER_ETAG) &&
+          Request::getHttpHeader('If-None-Match', null) === static::getHeader(static::HEADER_ETAG)
+        ) {
+            static::setHeader(static::HEADER_STATUS, 304);
+            $sendContent = false;
+        }
+
         static::sendHeaders();
-        static::sendContent();
+
+        if ($sendContent) {
+            static::sendContent();
+        }
     }
 
     public static function setContent(string $content)
@@ -162,16 +177,9 @@ class Response
             throw new LogicException('Content has already been sent. It cannot be sent twice');
         }
 
-        if (!static::$isHeadersOnly) {
-            echo static::$content;
-        }
+        echo static::$content;
 
         static::$contentSent = true;
-    }
-
-    public static function setIsHeadersOnly(bool $isHeadersOnly = true)
-    {
-        static::$isHeadersOnly = $isHeadersOnly;
     }
 
     public static function setDownloadHttpHeaders($name, $type = null, $size = null, $noSniff = true)
@@ -190,35 +198,23 @@ class Response
     ]));
     }
 
-    public static function setContentEtag()
+    //public immutable cache = hard-caching (no server checks) until time limit passes
+    public static function enablePublicImmutableCache(int $seconds = 300)
     {
-        static::setHeader(static::HEADER_ETAG, md5(static::getContent()));
+        static::setHeader(static::HEADER_CACHE_CONTROL, 'public, max-age=' . $seconds);
     }
 
-    public static function enableHttpCache(int $seconds = 300)
+    //public mutable cache = soft-caching (requires at least one round trip for headers) as long as etag identifier matches
+    public static function enablePublicMutableCache(string $etag)
     {
-        static::addCacheControlHeader('max-age', $seconds);
-        static::setHeader('Pragma', 'public');
+        static::setHeader(static::HEADER_CACHE_CONTROL, 'public');
+        static::setHeader(static::HEADER_ETAG, $etag);
     }
 
-    public static function addCacheControlHeader(string $name, $value = null)
+    //always reload and re-execute this resource, disable any local or intermediary caching
+    public static function disableHttpCache()
     {
-        $cacheControl   = static::getHeader(static::HEADER_CACHE_CONTROL);
-        $currentHeaders = [];
-        if ($cacheControl) {
-            foreach (preg_split('/\s*,\s*/', $cacheControl) as $tmp) {
-                $tmp                     = explode('=', $tmp);
-                $currentHeaders[$tmp[0]] = $tmp[1] ?? null;
-            }
-        }
-        $currentHeaders[strtr(strtolower($name), '_', '-')] = $value;
-
-        $headers = [];
-        foreach ($currentHeaders as $key => $currentVal) {
-            $headers[] = $key . ($currentVal !== null ? '=' . $currentVal : '');
-        }
-
-        static::setHeader(static::HEADER_CACHE_CONTROL, implode(', ', $headers));
+        static::setHeader(static::HEADER_CACHE_CONTROL, 'private, no-cache, no-store');
     }
 
     public static function setHeader($name, $value)
@@ -253,10 +249,10 @@ class Response
     public static function setDefaultSecurityHeaders()
     {
         $defaultHeaders = [
-      'Content-Security-Policy' => "frame-ancestors 'none'",
-      'X-Frame-Options'         => 'DENY',
-      'X-XSS-Protection'        => '1',
-    ];
+            'Content-Security-Policy' => "frame-ancestors 'none'",
+            'X-Frame-Options'         => 'DENY',
+            'X-XSS-Protection'        => '1',
+        ];
 
         if (IS_PRODUCTION) {
             $defaultHeaders['Strict-Transport-Security'] = 'max-age=31536000';
@@ -361,12 +357,24 @@ class Response
     protected static function normalizeHeaderName($name): string
     {
         return preg_replace_callback(
-      '/\-(.)/',
-      function ($matches) {
+            '/\-(.)/',
+            function ($matches) {
           return '-' . strtoupper($matches[1]);
       },
-      strtr(ucfirst(strtolower($name)), '_', '-')
-    );
+            strtr(ucfirst(strtolower($name)), '_', '-')
+        );
+    }
+
+    public static function addPostRenderCallback($cb)
+    {
+        array_push(static::$PostRenderCallbacks, $cb);
+    }
+
+    public static function invokePostRenderCallbacks()
+    {
+        foreach (static::$PostRenderCallbacks as &$cb) {
+            $cb();
+        }
     }
 
 
